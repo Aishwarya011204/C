@@ -27,41 +27,32 @@ typedef struct node
  */
 node *newNode(int data)
 {
-    // creates a slug
     node *tmp = (node *)malloc(sizeof(node));
-
-    // initializes the slug
     tmp->data = data;
     tmp->left = NULL;
     tmp->right = NULL;
-
     return tmp;
 }
 
 /** Insertion procedure, which inserts the input key in a new node in the tree
  * @param root pointer to parent node
- * @param data value to store int he new node
+ * @param data value to store in the new node
  * @returns pointer to parent node
  */
 node *insert(node *root, int data)
 {
-    // If the root of the subtree is null, insert key here
     if (root == NULL)
     {
         root = newNode(data);
     }
     else if (data > root->data)
     {
-        // If it isn't null and the input key is greater than the root key,
-        // insert in the right leaf
         root->right = insert(root->right, data);
     }
     else if (data < root->data)
-    {  // If it isn't null and the input key is lower than the root key, insert
-       // in the left leaf
+    {
         root->left = insert(root->left, data);
     }
-    // Returns the modified tree
     return root;
 }
 
@@ -71,7 +62,6 @@ node *insert(node *root, int data)
  */
 node *getMax(node *root)
 {
-    // If there's no leaf to the right, then this is the maximum key value
     if (root->right != NULL)
     {
         return getMax(root->right);
@@ -85,35 +75,29 @@ node *getMax(node *root)
  * @param data value to search for int the node
  * @returns pointer to parent node
  */
-node *delete (node *root, int data)
+node *delete(node *root, int data)
 {
-    // If the root is null, nothing to be done
     if (root == NULL)
     {
         return root;
     }
     else if (data > root->data)
-    {  // If the input key is greater than the root's, search in the right
-        // subtree
-        root->right = delete (root->right, data);
+    {
+        root->right = delete(root->right, data);
     }
     else if (data < root->data)
-    {  // If the input key is lower than the root's, search in the left subtree
-        root->left = delete (root->left, data);
+    {
+        root->left = delete(root->left, data);
     }
     else if (data == root->data)
     {
-        // If the input key matches the root's, check the following cases
-        // termination condition
         if ((root->left == NULL) && (root->right == NULL))
-        {  // Case 1: the root has no leaves, remove the node
+        {
             free(root);
             return NULL;
         }
         else if (root->left == NULL)
-        {  // Case 2: the root has one leaf, make the leaf the new root and
-            // remove
-            // the old root
+        {
             node *tmp = root;
             root = root->right;
             free(tmp);
@@ -127,16 +111,10 @@ node *delete (node *root, int data)
             return root;
         }
         else
-        {  // Case 3: the root has 2 leaves, find the greatest key in the left
-            // subtree and switch with the root's
-
-            // finds the biggest node in the left branch.
+        {
             node *tmp = getMax(root->left);
-
-            // sets the data of this node equal to the data of the biggest node
-            // (lefts)
             root->data = tmp->data;
-            root->left = delete (root->left, tmp->data);
+            root->left = delete(root->left, tmp->data);
         }
     }
     return root;
@@ -145,69 +123,49 @@ node *delete (node *root, int data)
 /** Search procedure, which looks for the input key in the tree and returns 1 if
  * it's present or 0 if it's not in the tree
  * @param root pointer to parent node
- * @param data value to store int he new node
+ * @param data value to store int the new node
  * @returns 0 if value not found in the nodes
  * @returns 1 if value was found
  */
 int find(node *root, int data)
 {
-    // If the root is null, the key's not present
     if (root == NULL)
     {
         return 0;
     }
     else if (data > root->data)
     {
-        // If the input key is greater than the root's, search in the right
-        // subtree
         return find(root->right, data);
     }
     else if (data < root->data)
     {
-        // If the input key is lower than the root's, search in the left subtree
         return find(root->left, data);
     }
     else if (data == root->data)
     {
-        // If the input and the root key match, return 1
         return 1;
     }
     else
-    {  // unknown result!!
+    {
         return 0;
     }
 }
 
 /** Utilitary procedure to measure the height of the binary tree
  * @param root pointer to parent node
- * @param data value to store int he new node
- * @returns 0 if value not found in the nodes
  * @returns height of nodes to get to data from parent node
  */
 int height(node *root)
 {
-    // If the root is null, this is the bottom of the tree (height 0)
     if (root == NULL)
     {
         return 0;
     }
     else
     {
-        // Get the height from both left and right subtrees to check which is
-        // the greatest
         int right_h = height(root->right);
         int left_h = height(root->left);
-
-        // The final height is the height of the greatest subtree(left or right)
-        // plus 1(which is the root's level)
-        if (right_h > left_h)
-        {
-            return (right_h + 1);
-        }
-        else
-        {
-            return (left_h + 1);
-        }
+        return (right_h > left_h) ? (right_h + 1) : (left_h + 1);
     }
 }
 
@@ -218,16 +176,9 @@ void purge(node *root)
 {
     if (root != NULL)
     {
-        if (root->left != NULL)
-        {
-            purge(root->left);
-        }
-        if (root->right != NULL)
-        {
-            purge(root->right);
-        }
+        purge(root->left);
+        purge(root->right);
         free(root);
-        root = NULL;  // reset pointer
     }
 }
 
@@ -245,24 +196,54 @@ void inOrder(node *root)
     }
 }
 
-/** Main funcion */
+/** Helper function to print the tree in a structured way
+ * @param root pointer to the current node
+ * @param space number of spaces to use for indentation
+ */
+void printTreeHelper(node *root, int space)
+{
+    if (root == NULL)
+        return;
+
+    space += 10;
+
+    printTreeHelper(root->right, space);
+
+    printf("\n");
+    for (int i = 10; i < space; i++)
+        printf(" ");
+    printf("%d\n", root->data);
+
+    printTreeHelper(root->left, space);
+}
+
+/** Function to print the binary tree
+ * @param root pointer to the root node of the tree
+ */
+void printTree(node *root)
+{
+    if (root == NULL)
+    {
+        printf("Tree is empty!\n");
+        return;
+    }
+    printTreeHelper(root, 0);
+}
+
+/** Main function */
 int main()
 {
-    // this reference don't change.
-    // only the tree changes.
     node *root = NULL;
     int opt = -1;
     int data = 0;
 
-    // event-loop.
     while (opt != 0)
     {
         printf(
             "\n\n[1] Insert Node\n[2] Delete Node\n[3] Find a Node\n[4] Get "
-            "current Height\n[5] Print Tree in Crescent Order\n[0] Quit\n");
-        scanf("%d", &opt);  // reads the choice of the user
+            "current Height\n[5] Print Tree in Crescent Order\n[6] Print Tree\n[0] Quit\n");
+        scanf("%d", &opt);
 
-        // processes the choice
         switch (opt)
         {
         case 1:
@@ -276,7 +257,7 @@ int main()
             if (root != NULL)
             {
                 scanf("%d", &data);
-                root = delete (root, data);
+                root = delete(root, data);
             }
             else
             {
@@ -298,10 +279,13 @@ int main()
         case 5:
             inOrder(root);
             break;
+
+        case 6:
+            printTree(root);
+            break;
         }
     }
 
-    // deletes the tree from the heap.
     purge(root);
 
     return 0;
